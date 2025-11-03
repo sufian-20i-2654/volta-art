@@ -1,27 +1,41 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import { useState } from "react";
+import NavBar from "@/components/NavBar";
+import Home from "@/views/Home";
+import Input from "@/views/Input";
+import Result from "@/views/Result";
 
-const queryClient = new QueryClient();
+type View = 'home' | 'input' | 'result';
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [currentView, setCurrentView] = useState<View>('home');
+  const [resultData, setResultData] = useState<string>('');
+
+  const handleNavigate = (view: View, data?: string) => {
+    if (data) {
+      setResultData(data);
+    }
+    setCurrentView(view);
+  };
+
+  return (
+    <div className="min-h-screen bg-background text-foreground">
+      <NavBar currentView={currentView} onNavigate={handleNavigate} />
+      
+      <main className="pt-16">
+        {currentView === 'home' && (
+          <Home onNavigate={handleNavigate} />
+        )}
+        
+        {currentView === 'input' && (
+          <Input onNavigate={handleNavigate} />
+        )}
+        
+        {currentView === 'result' && (
+          <Result data={resultData} onNavigate={handleNavigate} />
+        )}
+      </main>
+    </div>
+  );
+};
 
 export default App;
