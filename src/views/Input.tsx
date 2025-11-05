@@ -22,14 +22,18 @@ const Input = ({ onNavigate }: InputProps) => {
     setIsLoading(true);
 
     try {
-      // Call mock API with video file info
-      const fileInfo = `${videoFile.name} (${(videoFile.size / 1024 / 1024).toFixed(2)} MB)`;
-      const result = await mockApi(fileInfo);
+      // Get the file path (note: in browser, we only have the filename, not full path)
+      // For actual file path input, you may need to use a text input instead
+      const videoPath = (videoFile as any).path || videoFile.name;
+      
+      // Call API with video path
+      const result = await mockApi(videoPath);
       
       // Navigate to result view with returned data
-      onNavigate('result', result);
+      onNavigate('result', JSON.stringify(result, null, 2));
     } catch (error) {
       console.error('API Error:', error);
+      alert('Failed to process video. Please check console for details.');
     } finally {
       setIsLoading(false);
     }
