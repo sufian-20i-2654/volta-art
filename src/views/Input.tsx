@@ -11,19 +11,20 @@ interface InputProps {
  * Input view - Processing hub with form and mock API integration
  */
 const Input = ({ onNavigate }: InputProps) => {
-  const [inputText, setInputText] = useState('');
+  const [videoFile, setVideoFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    if (!inputText.trim()) return;
+    if (!videoFile) return;
 
     setIsLoading(true);
 
     try {
-      // Call mock API with 2-second delay
-      const result = await mockApi(inputText);
+      // Call mock API with video file info
+      const fileInfo = `${videoFile.name} (${(videoFile.size / 1024 / 1024).toFixed(2)} MB)`;
+      const result = await mockApi(fileInfo);
       
       // Navigate to result view with returned data
       onNavigate('result', result);
@@ -62,42 +63,66 @@ const Input = ({ onNavigate }: InputProps) => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Input field with glowing focus */}
+              {/* Video upload field */}
               <div className="relative">
                 <label 
-                  htmlFor="input-field" 
+                  htmlFor="video-upload" 
                   className="block text-sm font-mono uppercase tracking-wider text-muted-foreground mb-2"
                 >
-                  Input Data
+                  Video Upload
                 </label>
-                <textarea
-                  id="input-field"
-                  value={inputText}
-                  onChange={(e) => setInputText(e.target.value)}
-                  placeholder="Type your message here..."
-                  rows={6}
-                  className="
-                    w-full
-                    bg-background/50
-                    border-2
-                    border-border
-                    rounded-lg
-                    px-4
-                    py-3
-                    text-foreground
-                    font-mono
-                    focus:outline-none
-                    focus:border-primary
-                    focus:shadow-[0_0_20px_hsl(var(--primary)/0.3)]
-                    transition-all
-                    duration-300
-                    resize-none
-                  "
-                />
-                
-                {/* Character count */}
-                <div className="absolute bottom-3 right-3 text-xs text-muted-foreground font-mono">
-                  {inputText.length} chars
+                <div className="relative">
+                  <input
+                    id="video-upload"
+                    type="file"
+                    accept="video/*"
+                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
+                    className="hidden"
+                  />
+                  <label
+                    htmlFor="video-upload"
+                    className="
+                      w-full
+                      bg-background/50
+                      border-2
+                      border-border
+                      border-dashed
+                      rounded-lg
+                      px-6
+                      py-12
+                      text-foreground
+                      font-mono
+                      hover:border-primary
+                      hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)]
+                      transition-all
+                      duration-300
+                      cursor-pointer
+                      flex
+                      flex-col
+                      items-center
+                      justify-center
+                      gap-4
+                    "
+                  >
+                    {videoFile ? (
+                      <>
+                        <div className="text-primary text-lg">✓</div>
+                        <div className="text-center">
+                          <div className="text-sm text-foreground">{videoFile.name}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {(videoFile.size / 1024 / 1024).toFixed(2)} MB
+                          </div>
+                        </div>
+                        <div className="text-xs text-muted-foreground">Click to change</div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="text-primary text-4xl">+</div>
+                        <div className="text-sm text-muted-foreground">Click to upload video</div>
+                        <div className="text-xs text-muted-foreground">MP4, MOV, AVI, WebM</div>
+                      </>
+                    )}
+                  </label>
                 </div>
               </div>
 
@@ -107,28 +132,12 @@ const Input = ({ onNavigate }: InputProps) => {
                   type="submit"
                   variant="pink"
                   size="lg"
-                  disabled={!inputText.trim()}
+                  disabled={!videoFile}
                 >
                   Execute Analysis
                 </NeonButton>
               </div>
             </form>
-
-            {/* Decorative grid */}
-            <div className="mt-8 pt-8 border-t border-border/30">
-              <div className="grid grid-cols-3 gap-4 text-center">
-                {[
-                  { label: 'Speed', value: '2.0s' },
-                  { label: 'Accuracy', value: '99.8%' },
-                  { label: 'Status', value: 'READY' },
-                ].map((stat) => (
-                  <div key={stat.label}>
-                    <div className="text-primary font-mono font-bold text-lg">{stat.value}</div>
-                    <div className="text-muted-foreground text-xs uppercase tracking-wider">{stat.label}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
         )}
       </div>
