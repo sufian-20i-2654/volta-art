@@ -11,21 +11,17 @@ interface InputProps {
  * Input view - Processing hub with form and mock API integration
  */
 const Input = ({ onNavigate }: InputProps) => {
-  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPath, setVideoPath] = useState('');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     
-    if (!videoFile) return;
+    if (!videoPath.trim()) return;
 
     setIsLoading(true);
 
     try {
-      // Get the file path (note: in browser, we only have the filename, not full path)
-      // For actual file path input, you may need to use a text input instead
-      const videoPath = (videoFile as any).path || videoFile.name;
-      
       // Call API with video path
       const result = await mockApi(videoPath);
       
@@ -67,67 +63,44 @@ const Input = ({ onNavigate }: InputProps) => {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Video upload field */}
+              {/* Video path input field */}
               <div className="relative">
                 <label 
-                  htmlFor="video-upload" 
+                  htmlFor="video-path" 
                   className="block text-sm font-mono uppercase tracking-wider text-muted-foreground mb-2"
                 >
-                  Video Upload
+                  Video Path
                 </label>
                 <div className="relative">
                   <input
-                    id="video-upload"
-                    type="file"
-                    accept="video/*"
-                    onChange={(e) => setVideoFile(e.target.files?.[0] || null)}
-                    className="hidden"
-                  />
-                  <label
-                    htmlFor="video-upload"
+                    id="video-path"
+                    type="text"
+                    value={videoPath}
+                    onChange={(e) => setVideoPath(e.target.value)}
+                    placeholder="D:\raffay_fyp\video_input\00002.mp4"
                     className="
                       w-full
                       bg-background/50
                       border-2
                       border-border
-                      border-dashed
                       rounded-lg
                       px-6
-                      py-12
+                      py-4
                       text-foreground
                       font-mono
-                      hover:border-primary
-                      hover:shadow-[0_0_20px_hsl(var(--primary)/0.3)]
+                      text-sm
+                      focus:border-primary
+                      focus:shadow-[0_0_20px_hsl(var(--primary)/0.3)]
+                      focus:outline-none
                       transition-all
                       duration-300
-                      cursor-pointer
-                      flex
-                      flex-col
-                      items-center
-                      justify-center
-                      gap-4
+                      placeholder:text-muted-foreground/50
                     "
-                  >
-                    {videoFile ? (
-                      <>
-                        <div className="text-primary text-lg">✓</div>
-                        <div className="text-center">
-                          <div className="text-sm text-foreground">{videoFile.name}</div>
-                          <div className="text-xs text-muted-foreground mt-1">
-                            {(videoFile.size / 1024 / 1024).toFixed(2)} MB
-                          </div>
-                        </div>
-                        <div className="text-xs text-muted-foreground">Click to change</div>
-                      </>
-                    ) : (
-                      <>
-                        <div className="text-primary text-4xl">+</div>
-                        <div className="text-sm text-muted-foreground">Click to upload video</div>
-                        <div className="text-xs text-muted-foreground">MP4, MOV, AVI, WebM</div>
-                      </>
-                    )}
-                  </label>
+                  />
                 </div>
+                <p className="text-xs text-muted-foreground mt-2 font-mono">
+                  Enter the full path to the video file (Windows or Linux format)
+                </p>
               </div>
 
               {/* Submit button */}
@@ -136,7 +109,7 @@ const Input = ({ onNavigate }: InputProps) => {
                   type="submit"
                   variant="pink"
                   size="lg"
-                  disabled={!videoFile}
+                  disabled={!videoPath.trim()}
                 >
                   Execute Analysis
                 </NeonButton>
